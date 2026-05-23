@@ -118,12 +118,7 @@ export default function Landing() {
                 {t('landing.ctaMerchant')}
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/product/1?token=demo" className="btn-ghost text-lg py-3 px-8 text-center block">
-                {t('landing.ctaSample')}
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+<motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Link to="/admin" className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-lg py-3 px-8 rounded-lg transition-colors text-center block">
                 {t('landing.ctaAdmin')}
               </Link>
