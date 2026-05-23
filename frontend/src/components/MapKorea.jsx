@@ -69,10 +69,7 @@ export default function MapKorea({ storeCounts = {} }) {
   }, [stores, search, region]);
 
   function visitStore(store) {
-    if (store.store_qr_url) {
-      const url = new URL(store.store_qr_url, window.location.origin);
-      navigate(url.pathname + url.search);
-    }
+    navigate(`/store/${store.id}`);
   }
 
   function handleRegionClick(key) {

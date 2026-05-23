@@ -51,11 +51,17 @@ export default function PublicStore() {
     );
   }
 
-  const statusBorder = status === 'safe' ? 'border-emerald-700/50' : 'border-amber-700/50';
-  const statusIcon = status === 'safe' ? '✅' : '⚠️';
+  const statusBorder = status === 'safe'
+    ? 'border-emerald-700/50'
+    : status === 'map'
+      ? 'border-indigo-700/50'
+      : 'border-amber-700/50';
+  const statusIcon = status === 'safe' ? '✅' : status === 'map' ? '🗺️' : '⚠️';
   const statusBadge = status === 'safe'
     ? <span className="badge-safe">{t('publicStore.certifiedBadge')}</span>
-    : <span className="badge-warning">{t('publicStore.warningBadge')}</span>;
+    : status === 'map'
+      ? <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-indigo-900/40 text-indigo-300 border border-indigo-700/50">{t('publicStore.mapBadge')}</span>
+      : <span className="badge-warning">{t('publicStore.warningBadge')}</span>;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">

@@ -72,15 +72,29 @@ router.get('/store-public/:id', async (req, res) => {
       return res.json({ status: 'danger', message: '존재하지 않거나 위조 가능성이 있는 QR입니다.' });
     }
 
-    if (!token || !verifyTimedStoreQrToken(store.id, token)) {
-      await logSecurity({ eventType: 'FAKE_QR_ACCESS', ipAddress: ip, detail: `Invalid/expired store QR token for store_id=${id}: token=${token}`, severity: 'critical' });
-      return res.json({ status: 'danger', message: '토큰이 만료되었거나 위조된 QR입니다.' });
-    }
-
     const { rows: products } = await pool.query(
       `SELECT * FROM products WHERE store_id=$1 AND is_active=1 ORDER BY created_at DESC`,
       [id]
     );
+
+    // 토큰 없음 = 지도/웹에서 직접 접근 → QR 검증 없이 상점 정보 표시
+    if (!token) {
+      if (store.status !== 'approved') {
+        return res.json({ status: 'warning', message: '승인 대기 중인 상점입니다.', store, products });
+      }
+      return res.json({
+        status: 'map',
+        message: '지도에서 접속한 공식 인증 상점입니다.',
+        store,
+        products,
+      });
+    }
+
+    // 토큰 있음 = QR 스캔 → 회전 토큰 검증
+    if (!verifyTimedStoreQrToken(store.id, token)) {
+      await logSecurity({ eventType: 'FAKE_QR_ACCESS', ipAddress: ip, detail: `Invalid/expired store QR token for store_id=${id}: token=${token}`, severity: 'critical' });
+      return res.json({ status: 'danger', message: '토큰이 만료되었거나 위조된 QR입니다.' });
+    }
 
     const statusMap = { approved: 'safe', pending: 'warning', flagged: 'warning' };
     const msgMap = {
