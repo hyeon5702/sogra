@@ -18,6 +18,9 @@ export default function MerchantDashboard() {
   const [liveQrUrl, setLiveQrUrl] = useState(null);
   const [countdown, setCountdown] = useState(30);
   const [toast, setToast] = useState('');
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [editLoading, setEditLoading] = useState(false);
   const countdownRef = useRef(30);
   const user = getUser();
 
@@ -58,6 +61,35 @@ export default function MerchantDashboard() {
     await api.deleteProduct(id);
     setProducts(prev => prev.filter(p => p.id !== id));
     showToast(t('dashboard.deleteSuccess'));
+  }
+
+  function openEdit(p) {
+    setEditingProduct(p);
+    setEditForm({
+      name: p.name,
+      price: p.price,
+      description: p.description || '',
+      origin: p.origin || '',
+      allergy: p.allergy || '',
+      image_url: p.image_url || '',
+    });
+  }
+
+  async function handleEditSubmit(e) {
+    e.preventDefault();
+    setEditLoading(true);
+    try {
+      await api.updateProduct(editingProduct.id, editForm);
+      setProducts(prev => prev.map(p =>
+        p.id === editingProduct.id ? { ...p, ...editForm, price: Number(editForm.price) } : p
+      ));
+      setEditingProduct(null);
+      showToast('상품이 수정되었습니다.');
+    } catch (err) {
+      showToast('수정 실패: ' + err.message);
+    } finally {
+      setEditLoading(false);
+    }
   }
 
   function showToast(msg) {
@@ -262,8 +294,16 @@ export default function MerchantDashboard() {
                 )}
                 <div className="flex gap-2">
                   <motion.button
+                    onClick={() => openEdit(p)}
+                    className="btn-ghost text-sm py-1.5 flex-1"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    ✏️ 수정
+                  </motion.button>
+                  <motion.button
                     onClick={() => handleDelete(p.id)}
-                    className="btn-danger text-sm py-1.5 w-full"
+                    className="btn-danger text-sm py-1.5 flex-1"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                   >
@@ -275,6 +315,126 @@ export default function MerchantDashboard() {
           </div>
         )}
       </div>
+
+      {/* Edit Product Modal */}
+      <AnimatePresence>
+        {editingProduct && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setEditingProduct(null)}
+          >
+            <motion.div
+              className="card max-w-lg w-full max-h-[90vh] overflow-y-auto"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-5">
+                <h3 className="font-bold text-zinc-100 text-lg">✏️ 상품 수정</h3>
+                <button onClick={() => setEditingProduct(null)} className="text-zinc-500 hover:text-zinc-300 text-xl">✕</button>
+              </div>
+
+              <form onSubmit={handleEditSubmit}>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5">상품명</label>
+                    <input
+                      className="input"
+                      value={editForm.name}
+                      onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5">가격 (원)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      value={editForm.price}
+                      onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))}
+                      required
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1.5">상품 설명</label>
+                  <textarea
+                    className="input min-h-24 resize-none"
+                    value={editForm.description}
+                    onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                    placeholder="상품에 대한 설명을 입력하세요"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5">원산지</label>
+                    <input
+                      className="input"
+                      value={editForm.origin}
+                      onChange={e => setEditForm(f => ({ ...f, origin: e.target.value }))}
+                      placeholder="예: 대전, 충남 서산"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-400 mb-1.5">알레르기</label>
+                    <input
+                      className="input"
+                      value={editForm.allergy}
+                      onChange={e => setEditForm(f => ({ ...f, allergy: e.target.value }))}
+                      placeholder="예: 밀, 우유, 달걀"
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-zinc-400 mb-1.5">이미지 URL</label>
+                  <input
+                    className="input"
+                    value={editForm.image_url}
+                    onChange={e => setEditForm(f => ({ ...f, image_url: e.target.value }))}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  {editForm.image_url && (
+                    <img
+                      src={editForm.image_url}
+                      alt="미리보기"
+                      className="mt-2 w-full h-32 object-cover rounded-lg"
+                      onError={e => e.target.style.display = 'none'}
+                    />
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <motion.button
+                    type="submit"
+                    disabled={editLoading}
+                    className="btn-primary flex-1 py-2.5"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    {editLoading ? '저장 중...' : '💾 저장'}
+                  </motion.button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct(null)}
+                    className="btn-ghost px-6"
+                  >
+                    취소
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Store QR Modal */}
       <AnimatePresence>
