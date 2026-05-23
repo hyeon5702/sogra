@@ -8,6 +8,22 @@ const { generatePromoTextAI, generatePromoTextAIEn, generatePromoTextAIZh } = re
 
 const router = express.Router();
 
+// 공개 API — 랜딩 페이지 통계 (인증 상점 수, 활성 상품 수)
+router.get('/public-stats', async (req, res) => {
+  try {
+    const [s, p] = await Promise.all([
+      pool.query("SELECT COUNT(*) as cnt FROM stores WHERE status = 'approved'"),
+      pool.query("SELECT COUNT(*) as cnt FROM products WHERE is_active = 1"),
+    ]);
+    res.json({
+      totalStores: parseInt(s.rows[0].cnt),
+      totalProducts: parseInt(p.rows[0].cnt),
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // 공개 API — 지역별 승인된 상점 수 (랜딩 지도용)
 router.get('/region-counts', async (req, res) => {
   try {

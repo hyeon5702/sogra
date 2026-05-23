@@ -17,9 +17,7 @@ export default function Landing() {
   const [storeCounts, setStoreCounts] = useState({});
 
   useEffect(() => {
-    fetch('/api/admin/stats', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('ls_token')}` }
-    })
+    fetch('/api/products/public-stats')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d) setStats({ stores: d.totalStores, products: d.totalProducts });
@@ -89,9 +87,9 @@ export default function Landing() {
             className="flex justify-center gap-8 mb-12"
           >
             {[
-              { value: stats.stores || 3, labelKey: 'landing.statStores', color: 'text-indigo-400' },
+              { value: stats.stores, labelKey: 'landing.statStores', color: 'text-indigo-400' },
               null,
-              { value: stats.products || 5, labelKey: 'landing.statProducts', color: 'text-emerald-400' },
+              { value: stats.products, labelKey: 'landing.statProducts', color: 'text-emerald-400' },
               null,
               { value: '5', labelKey: 'landing.statSecurity', color: 'text-amber-400' },
             ].map((item, i) =>
