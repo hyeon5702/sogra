@@ -9,7 +9,7 @@ async function generatePromoTextAI({ name, region, origin, allergy, description 
   if (!genAI) return fallbackPromoText({ name, region, origin });
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
 당신은 한국 전통시장 로컬 상품 홍보 전문가입니다.
@@ -44,7 +44,7 @@ async function generatePromoTextAIEn({ name, name_en, region_en, origin_en, alle
   if (!genAI) return fallbackPromoTextEn({ name_en, region_en, origin_en });
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
 You are a marketing copywriter specializing in Korean local market products.
@@ -79,7 +79,7 @@ async function generatePromoTextAIZh({ name, name_zh, region_zh, origin_zh, alle
   if (!genAI) return fallbackPromoTextZh({ name_zh, region_zh, origin_zh });
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
 您是韩国传统市场本地商品营销文案专家。
