@@ -125,30 +125,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="px-4 py-16 max-w-6xl mx-auto">
-        <motion.h2 {...fadeUp()} className="text-2xl font-bold text-center text-zinc-100 mb-12">
-          {t('landing.featuresTitle')}
-        </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((f, i) => (
-            <motion.div
-              key={f.titleKey}
-              className="card text-center"
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            >
-              <div className="text-4xl mb-4">{f.icon}</div>
-              <h3 className="font-bold text-zinc-100 mb-2">{t(f.titleKey)}</h3>
-              <p className="text-sm text-zinc-400">{t(f.descKey)}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* Map */}
       <section className="px-4 py-16 max-w-3xl mx-auto">
         <motion.h2 {...fadeUp()} className="text-2xl font-bold text-center text-zinc-100 mb-4">
